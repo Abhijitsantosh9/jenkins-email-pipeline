@@ -12,6 +12,7 @@ pipeline {
             steps {
                 script {
                     echo 'Running tests...'
+                    // Create test log file
                     sh 'echo "Test log - everything passed" > test.log'
                 }
             }
@@ -21,6 +22,7 @@ pipeline {
             steps {
                 script {
                     echo 'Running security scan...'
+                    // Create audit log file
                     sh 'echo "Security scan completed with 0 vulnerabilities." > audit.log'
                 }
             }
@@ -28,20 +30,13 @@ pipeline {
     }
 
     post {
-        success {
+        always {
             emailext (
-                subject: "✅ Jenkins Build #${env.BUILD_NUMBER} Success",
-                body: "Build completed successfully.\nCheck logs attached.\n\nBuild URL: ${env.BUILD_URL}",
+                subject: "Jenkins Build #${env.BUILD_NUMBER} Result: ${currentBuild.currentResult}",
+                body: "The pipeline has completed.\n\nBuild URL: ${env.BUILD_URL}",
                 to: 'abhijitkurup99@gmail.com',
-                attachmentsPattern: '*.log'
-            )
-        }
-        failure {
-            emailext (
-                subject: "❌ Jenkins Build #${env.BUILD_NUMBER} Failed",
-                body: "Build failed. See attached logs.\n\nBuild URL: ${env.BUILD_URL}",
-                to: 'abhijitkurup99@gmail.com',
-                attachmentsPattern: '*.log'
+                attachmentsPattern: '*.log',
+                mimeType: 'text/plain'
             )
         }
     }
